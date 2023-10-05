@@ -5,7 +5,7 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const searchForm = document.getElementById('search-form');
 const gallery = document.querySelector('.gallery');
-const KEY = '39758171-454faa2ce1768c54f925ff819';
+const KEY = '39838992-cddbb024fce110c66185237bc';
 
 let query = '';
 let page = 1;
@@ -40,15 +40,6 @@ function renderGallery(images) {
     .join('');
 
   gallery.insertAdjacentHTML('beforeend', markup);
-
-  // const { height: cardHeight } = document
-  //   .querySelector('.gallery')
-  //   .firstElementChild.getBoundingClientRect();
-
-  // window.scrollBy({
-  //   top: cardHeight * 2,
-  //   behavior: 'smooth',
-  // });
 }
 
 function onSearchForm(e) {
