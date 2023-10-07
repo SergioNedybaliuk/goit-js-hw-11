@@ -4,7 +4,7 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const BASE_URL = 'https://pixabay.com/api/';
-const API_KEY = '39802923-d8b3f86254aa0fe1b36a34a60';
+const API_KEY = '39838992-cddbb024fce110c66185237bc';
 const options = {
   params: {
     key: API_KEY,
