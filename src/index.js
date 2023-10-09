@@ -80,7 +80,7 @@ function renderGallery(hits) {
     })
     .join('');
 
-  galleryEl.insertAdjacentHTML('beforeend', markup);
+    elements.galleryEl.insertAdjacentHTML('beforeend', markup);
 
   if (options.params.page * options.params.per_page >= totalHits) {
     if (!reachedEnd) {
@@ -147,6 +147,7 @@ async function onFormSybmit(e) {
     searchInput.value = '';
     hideLoader();
   } catch (err) {
+    console.log(err)
     Notify.failure(err);
     hideLoader();
   }
