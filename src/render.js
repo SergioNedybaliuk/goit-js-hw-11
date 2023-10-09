@@ -29,13 +29,4 @@ function renderGallery(hits) {
       })
       .join('');
   
-      elements.galleryEl.insertAdjacentHTML('beforeend', markup);
-  
-    if (options.params.page * options.params.per_page >= totalHits) {
-      if (!reachedEnd) {
-        Notify.info("We're sorry, but you've reached the end of search results.");
-        reachedEnd = true;
-      }
     }
-    lightbox.refresh();
-  }

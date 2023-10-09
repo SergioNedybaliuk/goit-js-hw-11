@@ -1,12 +1,12 @@
 import axios from 'axios';
-import { BASE_URL, API_KEY, options } from './api.js';
+import { BASE_URL, API_KEY, options } from './api.js'; 
 import { renderGallery } from './render.js';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 
- const elements = {
+const elements = {
   galleryEl: document.querySelector('.gallery'),
   searchInput: document.querySelector('input[name="searchQuery"'),
   searchForm: document.getElementById('search-form'),
@@ -26,7 +26,7 @@ const lightbox = new SimpleLightbox('.lightbox', {
   close: false,
 });
 
-elements.searchForm.addEventListener('submit', onFormSybmit);
+elements.searchForm.addEventListener('submit', onFormSubmit);
 window.addEventListener('scroll', onScrollHandler);
 document.addEventListener('DOMContentLoaded', hideLoader);
 
@@ -38,8 +38,6 @@ function hideLoader() {
   elements.loaderEl.style.display = 'none';
 }
 
-
-
 async function loadMore() {
   isLoadingMore = true;
   options.params.page += 1;
@@ -48,6 +46,13 @@ async function loadMore() {
     const response = await axios.get(BASE_URL, options);
     const hits = response.data.hits;
     renderGallery(hits);
+    if (options.params.page * options.params.per_page >= totalHits) {
+      if (!reachedEnd) {
+        Notify.info("We're sorry, but you've reached the end of search results.");
+        reachedEnd = true;
+      }
+    }
+    lightbox.refresh();
   } catch (err) {
     Notify.failure(err);
   } finally {
@@ -68,7 +73,7 @@ function onScrollHandler() {
   }
 }
 
-async function onFormSybmit(e) {
+async function onFormSubmit(e) {
   e.preventDefault();
   const searchQuery = elements.searchInput.value.trim();
   if (searchQuery === '') {
@@ -101,3 +106,10 @@ async function onFormSybmit(e) {
     hideLoader();
   }
 }
+
+
+
+
+
+
+
