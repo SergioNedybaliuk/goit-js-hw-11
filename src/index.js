@@ -1,21 +1,10 @@
 import axios from 'axios';
+import { BASE_URL, API_KEY, options } from './api.js';
+import { renderGallery } from './render.js';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
-const BASE_URL = 'https://pixabay.com/api/';
-const API_KEY = '39838992-cddbb024fce110c66185237bc';
-const options = {
-  params: {
-    key: API_KEY,
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: true,
-    per_page: 40,
-    page: 1,
-    q: '',
-  },
-};
 
  const elements = {
   galleryEl: document.querySelector('.gallery'),
@@ -49,47 +38,7 @@ function hideLoader() {
   elements.loaderEl.style.display = 'none';
 }
 
-function renderGallery(hits) {
-  const markup = hits
-    .map(item => {
-      return `
-            <a href="${item.largeImageURL}" class="lightbox">
-                <div class="photo-card">
-                    <img src="${item.webformatURL}" alt="${item.tags}" loading="lazy" />
-                    <div class="info">
-                        <p class="info-item">
-                            <b>Likes</b>
-                            ${item.likes}
-                        </p>
-                        <p class="info-item">
-                            <b>Views</b>
-                            ${item.views}
-                        </p>
-                        <p class="info-item">
-                            <b>Comments</b>
-                            ${item.comments}
-                        </p>
-                        <p class="info-item">
-                            <b>Downloads</b>
-                            ${item.downloads}
-                        </p>
-                    </div>
-                </div>
-            </a>
-            `;
-    })
-    .join('');
 
-    elements.galleryEl.insertAdjacentHTML('beforeend', markup);
-
-  if (options.params.page * options.params.per_page >= totalHits) {
-    if (!reachedEnd) {
-      Notify.info("We're sorry, but you've reached the end of search results.");
-      reachedEnd = true;
-    }
-  }
-  lightbox.refresh();
-}
 
 async function loadMore() {
   isLoadingMore = true;
@@ -101,7 +50,6 @@ async function loadMore() {
     renderGallery(hits);
   } catch (err) {
     Notify.failure(err);
-    hideLoader();
   } finally {
     hideLoader();
     isLoadingMore = false;
@@ -113,7 +61,6 @@ function onScrollHandler() {
   const scrollThreshold = 300;
   if (
     scrollTop + clientHeight >= scrollHeight - scrollThreshold &&
-    galleryEl.innerHTML !== '' &&
     !isLoadingMore &&
     !reachedEnd
   ) {
@@ -123,10 +70,12 @@ function onScrollHandler() {
 
 async function onFormSybmit(e) {
   e.preventDefault();
-  options.params.q = elements.searchInput.value.trim();
-  if (options.params.q === '') {
+  const searchQuery = elements.searchInput.value.trim();
+  if (searchQuery === '') {
+    Notify.info('Please enter a search query.');
     return;
   }
+  options.params.q = searchQuery;
   options.params.page = 1;
   elements.galleryEl.innerHTML = '';
   reachedEnd = false;
@@ -144,10 +93,10 @@ async function onFormSybmit(e) {
       Notify.success(`Hooray! We found ${totalHits} images.`);
       renderGallery(hits);
     }
-    searchInput.value = '';
+    elements.searchInput.value = '';
     hideLoader();
   } catch (err) {
-    console.log(err)
+    console.log(err);
     Notify.failure(err);
     hideLoader();
   }
