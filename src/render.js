@@ -1,4 +1,8 @@
-function renderGallery(hits) {
+
+import { elements } from './refs.js';
+
+
+export function renderGallery(hits) {
     const markup = hits
       .map(item => {
         return `
@@ -28,5 +32,5 @@ function renderGallery(hits) {
               `;
       })
       .join('');
-  
+  elements.galleryEl.insertAdjacentHTML('beforeend', markup)
     }
