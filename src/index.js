@@ -1,5 +1,3 @@
-
-// import { BASE_URL, API_KEY, options } from './api.js'; 
 import { renderGallery } from './render.js';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from 'simplelightbox';
@@ -7,14 +5,12 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 import { getImages } from './api.js';
 import { elements } from './refs.js';
 
-
-
-
 let totalHits = 0;
 let isLoadingMore = false;
 let reachedEnd = false;
 let searchQuery;
 let page = 1;
+let loadMoreListenerAdded = false;
 
 const lightbox = new SimpleLightbox('.lightbox', {
   captionsData: 'alt',
@@ -26,7 +22,6 @@ const lightbox = new SimpleLightbox('.lightbox', {
 });
 
 elements.searchForm.addEventListener('submit', onFormSubmit);
-window.addEventListener('scroll', onScrollHandler);
 document.addEventListener('DOMContentLoaded', hideLoader);
 
 async function onFormSubmit(e) {
@@ -38,15 +33,10 @@ async function onFormSubmit(e) {
     Notify.info('Please enter a search query.');
     return;
   }
-  // options.params.q = searchQuery;
-  // options.params.page = 1;
-  
-  // reachedEnd = false;
 
   try {
     showLoader();
     const response = await getImages(searchQuery, page)
-    // const response = await axios.get(BASE_URL, options);
     totalHits = response.data.totalHits;
     const hits = response.data.hits;
     if (hits.length === 0) {
@@ -55,7 +45,14 @@ async function onFormSubmit(e) {
       );
     } else {
       Notify.success(`Hooray! We found ${totalHits} images.`);
-      renderGallery (hits);
+      renderGallery(hits);
+      lightbox.refresh();
+
+      
+      if (totalHits > 40 && !loadMoreListenerAdded) {
+        window.addEventListener('scroll', onScrollHandler);
+        loadMoreListenerAdded = true;
+      }
     }
     elements.searchInput.value = '';
     hideLoader();
@@ -66,27 +63,25 @@ async function onFormSubmit(e) {
   }
 }
 
-function showLoader() {
-  elements.loaderEl.style.display = 'block';
-}
-
-function hideLoader() {
-  elements.loaderEl.style.display = 'none';
-}
-
 async function loadMore() {
   isLoadingMore = true;
   page += 1;
   try {
     showLoader();
-    const response = await getImages (searchQuery, page);
+    const response = await getImages(searchQuery, page);
     const hits = response.data.hits;
     renderGallery(hits);
-    if (options.params.page * options.params.per_page >= totalHits) {
+
+    
+    if (page * hits.length >= totalHits) {
       if (!reachedEnd) {
         Notify.info("We're sorry, but you've reached the end of search results.");
         reachedEnd = true;
       }
+
+      
+      window.removeEventListener('scroll', onScrollHandler);
+      loadMoreListenerAdded = false;
     }
     lightbox.refresh();
   } catch (err) {
@@ -95,6 +90,14 @@ async function loadMore() {
     hideLoader();
     isLoadingMore = false;
   }
+}
+
+function showLoader() {
+  elements.loaderEl.style.display = 'block';
+}
+
+function hideLoader() {
+  elements.loaderEl.style.display = 'none';
 }
 
 function onScrollHandler() {
@@ -108,12 +111,3 @@ function onScrollHandler() {
     loadMore();
   }
 }
-
-
-
-
-
-
-
-
-
